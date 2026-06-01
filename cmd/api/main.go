@@ -5,7 +5,10 @@ import (
 	"net/http"
 
 	"github.com/damir/jobfinder/internal/config"
+	"github.com/damir/jobfinder/internal/handler"
 	"github.com/damir/jobfinder/internal/model"
+	"github.com/damir/jobfinder/internal/repository"
+	"github.com/damir/jobfinder/internal/service"
 	"github.com/go-chi/chi/v5"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -34,6 +37,16 @@ func main() {
 		log.Fatal(err)
 	}
 
+	userRepo := repository.NewUserRepository(db)
+
+	userService := service.NewUserService(
+		userRepo,
+	)
+
+	authHandler := handler.NewAuthHandler(
+		userService,
+	)
+
 	// routing
 	r := chi.NewRouter()
 
@@ -43,6 +56,11 @@ func main() {
 	) {
 		w.Write([]byte("ok"))
 	})
+
+	r.Post(
+		"/auth/register",
+		authHandler.Register,
+	)
 
 	http.ListenAndServe(":8080", r)
 }
