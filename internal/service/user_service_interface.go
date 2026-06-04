@@ -11,4 +11,9 @@ type UserService interface {
 		ctx context.Context,
 		req dto.RegisterRequest,
 	) error
+
+	Login(
+		ctx context.Context,
+		req dto.LoginRequest,
+	) (string, error)
 }

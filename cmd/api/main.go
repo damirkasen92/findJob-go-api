@@ -3,7 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/damir/jobfinder/internal/auth"
 	"github.com/damir/jobfinder/internal/config"
 	"github.com/damir/jobfinder/internal/handler"
 	"github.com/damir/jobfinder/internal/model"
@@ -40,6 +42,7 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(
 		userRepo,
+		auth.NewJWTManager(os.Getenv("JWT_SECRET")),
 	)
 	authHandler := handler.NewAuthHandler(
 		userService,

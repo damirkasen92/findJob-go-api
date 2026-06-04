@@ -27,5 +27,10 @@ func NewRouter(authHandler *handler.AuthHandler) *chi.Mux {
 		authHandler.Register,
 	)
 
+	r.Post(
+		"/auth/login",
+		authHandler.Login,
+	)
+
 	return r
 }

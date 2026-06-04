@@ -67,3 +67,55 @@ func (h *AuthHandler) Register(
 		},
 	)
 }
+
+func (h *AuthHandler) Login(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	var req dto.LoginRequest
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+
+	if err != nil {
+		httpx.Error(
+			w,
+			http.StatusBadRequest,
+			"invalid request",
+		)
+
+		return
+	}
+
+	token, err := h.userService.Login(
+		r.Context(),
+		req,
+	)
+
+	if err != nil {
+		if err == service.ErrInvalidCredentials {
+			httpx.Error(
+				w,
+				http.StatusUnauthorized,
+				err.Error(),
+			)
+
+			return
+		}
+
+		httpx.Error(
+			w,
+			http.StatusInternalServerError,
+			"internal error",
+		)
+
+		return
+	}
+
+	httpx.JSON(
+		w,
+		http.StatusOK,
+		map[string]string{
+			"access_token": token,
+		},
+	)
+}
