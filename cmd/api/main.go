@@ -8,8 +8,8 @@ import (
 	"github.com/damir/jobfinder/internal/handler"
 	"github.com/damir/jobfinder/internal/model"
 	"github.com/damir/jobfinder/internal/repository"
+	"github.com/damir/jobfinder/internal/router"
 	"github.com/damir/jobfinder/internal/service"
-	"github.com/go-chi/chi/v5"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -38,29 +38,20 @@ func main() {
 	}
 
 	userRepo := repository.NewUserRepository(db)
-
 	userService := service.NewUserService(
 		userRepo,
 	)
-
 	authHandler := handler.NewAuthHandler(
 		userService,
 	)
 
-	// routing
-	r := chi.NewRouter()
-
-	r.Get("/health", func(
-		w http.ResponseWriter,
-		r *http.Request,
-	) {
-		w.Write([]byte("ok"))
-	})
-
-	r.Post(
-		"/auth/register",
-		authHandler.Register,
+	r := router.NewRouter(
+		authHandler,
 	)
 
-	http.ListenAndServe(":8080", r)
+	err = http.ListenAndServe(":9000", r)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
