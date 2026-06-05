@@ -4,57 +4,17 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/damir/jobfinder/internal/auth"
-	"github.com/damir/jobfinder/internal/config"
-	"github.com/damir/jobfinder/internal/handler"
-	"github.com/damir/jobfinder/internal/model"
-	"github.com/damir/jobfinder/internal/repository"
-	"github.com/damir/jobfinder/internal/router"
-	"github.com/damir/jobfinder/internal/service"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/damir/jobfinder/app"
 )
 
-// TODO bloated main func
 func main() {
-	cfg := config.Load()
-
-	db, err := gorm.Open(
-		postgres.Open(cfg.DBDSN),
-		&gorm.Config{},
-	)
+	app, err := app.New()
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println("database connected")
-
-	err = db.AutoMigrate(
-		&model.User{},
-	)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	jwtManager := auth.NewJWTManager(cfg.JWTSecret)
-
-	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(
-		userRepo,
-		jwtManager,
-	)
-	authHandler := handler.NewAuthHandler(
-		userService,
-	)
-
-	r := router.NewRouter(
-		authHandler,
-		jwtManager,
-	)
-
-	err = http.ListenAndServe(":9000", r)
+	err = http.ListenAndServe(":9000", app.Router)
 
 	if err != nil {
 		log.Fatal(err)
