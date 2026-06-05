@@ -6,6 +6,7 @@ import (
 
 	"github.com/damir/jobfinder/internal/dto"
 	"github.com/damir/jobfinder/internal/httpx"
+	"github.com/damir/jobfinder/internal/middleware"
 	"github.com/damir/jobfinder/internal/service"
 )
 
@@ -116,6 +117,43 @@ func (h *AuthHandler) Login(
 		http.StatusOK,
 		map[string]string{
 			"access_token": token,
+		},
+	)
+}
+
+func (h *AuthHandler) Me(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	// GetUserID - helper to retrive data from ctx by key
+	userID := middleware.GetUserID(
+		r.Context(),
+	)
+
+	// get a user from db (layers, layers and more layers)
+	user, err := h.userService.GetByID(
+		r.Context(),
+		userID,
+	)
+
+	if err != nil {
+		httpx.Error(
+			w,
+			http.StatusNotFound,
+			"user not found",
+		)
+
+		return
+	}
+
+	// send a simple json
+	httpx.JSON(
+		w,
+		http.StatusOK,
+		map[string]any{
+			"id":    user.ID,
+			"email": user.Email,
+			"role":  user.Role,
 		},
 	)
 }

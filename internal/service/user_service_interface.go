@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/damir/jobfinder/internal/dto"
+	"github.com/damir/jobfinder/internal/model"
 )
 
 type UserService interface {
@@ -16,4 +17,9 @@ type UserService interface {
 		ctx context.Context,
 		req dto.LoginRequest,
 	) (string, error)
+
+	GetByID(
+		ctx context.Context,
+		id uint,
+	) (*model.User, error)
 }

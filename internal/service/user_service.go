@@ -101,3 +101,13 @@ func (s *userService) Login(
 
 	return token, nil
 }
+
+func (s *userService) GetByID(
+	ctx context.Context,
+	id uint,
+) (*model.User, error) {
+	return s.repo.GetByID(
+		ctx,
+		id,
+	)
+}

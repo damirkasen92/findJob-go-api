@@ -16,4 +16,9 @@ type UserRepository interface {
 		ctx context.Context,
 		email string,
 	) (*model.User, error)
+
+	GetByID(
+		ctx context.Context,
+		id uint,
+	) (*model.User, error)
 }

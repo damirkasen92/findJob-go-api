@@ -49,3 +49,22 @@ func (r *userRepository) GetByEmail(
 
 	return &user, nil
 }
+
+func (r *userRepository) GetByID(
+	ctx context.Context,
+	id uint,
+) (*model.User, error) {
+	var user model.User
+
+	err := r.db.
+		WithContext(ctx).
+		Where("id = ?", id).
+		First(&user).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

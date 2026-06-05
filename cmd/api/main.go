@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/damir/jobfinder/internal/auth"
 	"github.com/damir/jobfinder/internal/config"
@@ -39,10 +38,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	jwtManager := auth.NewJWTManager(cfg.JWTSecret)
+
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(
 		userRepo,
-		auth.NewJWTManager(os.Getenv("JWT_SECRET")),
+		jwtManager,
 	)
 	authHandler := handler.NewAuthHandler(
 		userService,
@@ -50,6 +51,7 @@ func main() {
 
 	r := router.NewRouter(
 		authHandler,
+		jwtManager,
 	)
 
 	err = http.ListenAndServe(":9000", r)
