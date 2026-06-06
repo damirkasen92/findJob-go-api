@@ -16,10 +16,15 @@ type UserService interface {
 	Login(
 		ctx context.Context,
 		req dto.LoginRequest,
-	) (string, error)
+	) (string, string, error)
 
 	GetByID(
 		ctx context.Context,
 		id uint,
 	) (*model.User, error)
+
+	Refresh(
+		ctx context.Context,
+		refreshToken string,
+	) (string, error)
 }

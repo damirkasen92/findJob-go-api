@@ -87,7 +87,7 @@ func (h *AuthHandler) Login(
 		return
 	}
 
-	token, err := h.userService.Login(
+	accessToken, refreshToken, err := h.userService.Login(
 		r.Context(),
 		req,
 	)
@@ -116,7 +116,47 @@ func (h *AuthHandler) Login(
 		w,
 		http.StatusOK,
 		map[string]string{
-			"access_token": token,
+			"access_token":  accessToken,
+			"refresh_token": refreshToken,
+		},
+	)
+}
+
+func (h *AuthHandler) Refresh(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	var req dto.RefreshRequest
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+
+	if err != nil {
+		httpx.Error(
+			w,
+			http.StatusBadRequest,
+			"invalid request",
+		)
+
+		return
+	}
+
+	accessToken, err := h.userService.Refresh(r.Context(), req.RefreshToken)
+
+	if err != nil {
+		httpx.Error(
+			w,
+			http.StatusUnauthorized,
+			"invalid refresh token",
+		)
+
+		return
+	}
+
+	httpx.JSON(
+		w,
+		http.StatusOK,
+		map[string]string{
+			"access_token": accessToken,
 		},
 	)
 }

@@ -69,5 +69,10 @@ func NewRouter(authHandler *handler.AuthHandler, jwtManager *auth.JWTManager) *c
 		authHandler.Login,
 	)
 
+	r.Post(
+		"/auth/refresh",
+		authHandler.Refresh,
+	)
+
 	return r
 }

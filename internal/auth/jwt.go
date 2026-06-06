@@ -14,6 +14,12 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+type RefreshClaims struct {
+	UserID uint
+
+	jwt.RegisteredClaims
+}
+
 type JWTManager struct {
 	secret string
 }
@@ -24,6 +30,31 @@ func NewJWTManager(
 	return &JWTManager{
 		secret: secret,
 	}
+}
+
+func (m *JWTManager) GenerateRefreshToken(
+	userID uint,
+) (string, error) {
+	claims := RefreshClaims{
+		UserID: userID,
+
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(
+				time.Now().Add(
+					30 * 24 * time.Hour,
+				),
+			),
+		},
+	}
+
+	token := jwt.NewWithClaims(
+		jwt.SigningMethodHS256,
+		claims,
+	)
+
+	return token.SignedString(
+		[]byte(m.secret),
+	)
 }
 
 func (m *JWTManager) GenerateToken(
@@ -79,4 +110,32 @@ func (m *JWTManager) Parse(
 	}
 
 	return claims, nil
+}
+
+func (m *JWTManager) ParseRefreshToken(
+	tokenString string,
+) (*RefreshClaims, error) {
+	refreshToken, err := jwt.ParseWithClaims(
+		tokenString,
+		&RefreshClaims{},
+		func(
+			token *jwt.Token,
+		) (interface{}, error) {
+			return []byte(m.secret), nil
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	refreshClaims, ok := refreshToken.Claims.(*RefreshClaims)
+
+	if !ok || !refreshToken.Valid {
+		return nil, errors.New(
+			"invalid refresh token",
+		)
+	}
+
+	return refreshClaims, nil
 }

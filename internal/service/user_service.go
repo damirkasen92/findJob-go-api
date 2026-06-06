@@ -74,11 +74,11 @@ func (s *userService) Register(
 func (s *userService) Login(
 	ctx context.Context,
 	req dto.LoginRequest,
-) (string, error) {
+) (string, string, error) {
 	user, err := s.repo.GetByEmail(ctx, req.Email)
 
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	err = bcrypt.CompareHashAndPassword(
@@ -87,19 +87,27 @@ func (s *userService) Login(
 	)
 
 	if err != nil {
-		return "", ErrInvalidCredentials // don't forget to create an error in /project/internal/service/errors.go
+		return "", "", ErrInvalidCredentials
 	}
 
-	token, err := s.jwt.GenerateToken(
+	accessToken, err := s.jwt.GenerateToken(
 		user.ID,
 		user.Role,
 	)
 
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return token, nil
+	refreshToken, err := s.jwt.GenerateRefreshToken(
+		user.ID,
+	)
+
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }
 
 func (s *userService) GetByID(
@@ -110,4 +118,37 @@ func (s *userService) GetByID(
 		ctx,
 		id,
 	)
+}
+
+func (s *userService) Refresh(
+	ctx context.Context,
+	refreshToken string,
+) (string, error) {
+	claims, err := s.jwt.ParseRefreshToken(
+		refreshToken,
+	)
+
+	if err != nil {
+		return "", ErrInvalidCredentials
+	}
+
+	user, err := s.repo.GetByID(
+		ctx,
+		claims.UserID,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	accessToken, err := s.jwt.GenerateToken(
+		user.ID,
+		user.Role,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return accessToken, nil
 }
