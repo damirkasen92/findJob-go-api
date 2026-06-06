@@ -33,6 +33,25 @@ func NewRouter(authHandler *handler.AuthHandler, jwtManager *auth.JWTManager) *c
 		)
 	})
 
+	// this will be used in the future
+	// r.Group(func(r chi.Router) {
+
+	// 	r.Use(
+	// 		authMiddleware.Handle,
+	// 	)
+
+	// 	r.Use(
+	// 		middleware.RequireRole(
+	// 			model.RoleAdmin, // use enum like instead of magic strings
+	// 		),
+	// 	)
+
+	// 	r.Delete(
+	// 		"/users/{id}",
+	// 		userHandler.Delete,
+	// 	)
+	// })
+
 	r.Get("/health", func(
 		w http.ResponseWriter,
 		r *http.Request,

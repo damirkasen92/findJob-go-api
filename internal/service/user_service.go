@@ -66,7 +66,7 @@ func (s *userService) Register(
 		&model.User{
 			Email:    req.Email,
 			Password: string(hash),
-			Role:     "user",
+			Role:     model.RoleUser,
 		},
 	)
 }
