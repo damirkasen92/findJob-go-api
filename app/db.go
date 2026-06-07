@@ -23,6 +23,7 @@ func NewDB(
 
 	err = db.AutoMigrate(
 		&model.User{},
+		&model.Vacancy{},
 	)
 
 	if err != nil {

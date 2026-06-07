@@ -6,7 +6,8 @@ import (
 )
 
 type Services struct {
-	User service.UserService
+	User    service.UserService
+	Vacancy service.VacancyService
 }
 
 func NewServices(
@@ -17,6 +18,9 @@ func NewServices(
 		User: service.NewUserService(
 			repos.User,
 			jwt,
+		),
+		Vacancy: service.NewVacancyService(
+			repos.Vacancy,
 		),
 	}
 }

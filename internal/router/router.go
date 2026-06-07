@@ -6,10 +6,16 @@ import (
 	"github.com/damir/jobfinder/internal/auth"
 	"github.com/damir/jobfinder/internal/handler"
 	"github.com/damir/jobfinder/internal/middleware"
+	"github.com/damir/jobfinder/internal/model"
 	"github.com/go-chi/chi/v5"
 )
 
-func NewRouter(authHandler *handler.AuthHandler, jwtManager *auth.JWTManager) *chi.Mux {
+type Handlers struct {
+	Auth    *handler.AuthHandler
+	Vacancy *handler.VacancyHandler
+}
+
+func NewRouter(handlers Handlers, jwtManager *auth.JWTManager) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -29,28 +35,9 @@ func NewRouter(authHandler *handler.AuthHandler, jwtManager *auth.JWTManager) *c
 
 		r.Get(
 			"/me",
-			authHandler.Me,
+			handlers.Auth.Me,
 		)
 	})
-
-	// this will be used in the future
-	// r.Group(func(r chi.Router) {
-
-	// 	r.Use(
-	// 		authMiddleware.Handle,
-	// 	)
-
-	// 	r.Use(
-	// 		middleware.RequireRole(
-	// 			model.RoleAdmin, // use enum like instead of magic strings
-	// 		),
-	// 	)
-
-	// 	r.Delete(
-	// 		"/users/{id}",
-	// 		userHandler.Delete,
-	// 	)
-	// })
 
 	r.Get("/health", func(
 		w http.ResponseWriter,
@@ -61,18 +48,36 @@ func NewRouter(authHandler *handler.AuthHandler, jwtManager *auth.JWTManager) *c
 
 	r.Post(
 		"/auth/register",
-		authHandler.Register,
+		handlers.Auth.Register,
 	)
 
 	r.Post(
 		"/auth/login",
-		authHandler.Login,
+		handlers.Auth.Login,
 	)
 
 	r.Post(
 		"/auth/refresh",
-		authHandler.Refresh,
+		handlers.Auth.Refresh,
 	)
+
+	r.Group(func(r chi.Router) {
+		r.Use(
+			authMiddleware.Handle,
+		)
+
+		r.Use(
+			middleware.RequireRole(
+				model.RoleAdmin,
+				model.RoleCompany,
+			),
+		)
+
+		r.Post(
+			"/vacancies",
+			handlers.Vacancy.Create,
+		)
+	})
 
 	return r
 }

@@ -25,9 +25,11 @@ func New() (*App, error) {
 	services := NewServices(repositories, jwtManager)
 	handlers := NewHandlers(services)
 
-	// TODO router accepts only Auth handlers
 	r := router.NewRouter(
-		handlers.Auth,
+		router.Handlers{
+			Auth:    handlers.Auth,
+			Vacancy: handlers.Vacancy,
+		},
 		jwtManager,
 	)
 
