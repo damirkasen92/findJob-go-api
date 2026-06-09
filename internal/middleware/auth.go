@@ -7,6 +7,7 @@ import (
 
 	"github.com/damir/jobfinder/internal/auth"
 	"github.com/damir/jobfinder/internal/httpx"
+	"github.com/damir/jobfinder/internal/model"
 )
 
 // "constructor" with DI
@@ -99,10 +100,10 @@ func GetUserID(
 
 func GetRole(
 	ctx context.Context,
-) string {
+) model.Role {
 	role, ok := ctx.Value(
 		RoleKey,
-	).(string)
+	).(model.Role)
 
 	if !ok {
 		return ""

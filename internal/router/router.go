@@ -61,6 +61,9 @@ func NewRouter(handlers Handlers, jwtManager *auth.JWTManager) *chi.Mux {
 		handlers.Auth.Refresh,
 	)
 
+	r.Get("/vacancies/{vacancyID}", handlers.Vacancy.GetByID)
+	r.Get("/vacancies", handlers.Vacancy.GetList)
+
 	r.Group(func(r chi.Router) {
 		r.Use(
 			authMiddleware.Handle,
@@ -76,6 +79,11 @@ func NewRouter(handlers Handlers, jwtManager *auth.JWTManager) *chi.Mux {
 		r.Post(
 			"/vacancies",
 			handlers.Vacancy.Create,
+		)
+
+		r.Delete(
+			"/vacancies/{vacancyID}",
+			handlers.Vacancy.Delete,
 		)
 	})
 

@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
 	ID uint `gorm:"primaryKey"`
@@ -8,7 +10,7 @@ type User struct {
 	Email    string `gorm:"unique"`
 	Password string
 
-	Role string
+	Role Role
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

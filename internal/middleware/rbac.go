@@ -4,10 +4,11 @@ import (
 	"net/http"
 
 	"github.com/damir/jobfinder/internal/httpx"
+	"github.com/damir/jobfinder/internal/model"
 )
 
 func RequireRole(
-	roles ...string,
+	roles ...model.Role,
 ) func(http.Handler) http.Handler {
 	return func(
 		next http.Handler,

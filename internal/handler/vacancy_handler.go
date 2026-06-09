@@ -6,8 +6,10 @@ import (
 
 	"github.com/damir/jobfinder/internal/dto"
 	"github.com/damir/jobfinder/internal/httpx"
+	"github.com/damir/jobfinder/internal/mapper"
 	"github.com/damir/jobfinder/internal/middleware"
 	"github.com/damir/jobfinder/internal/service"
+	"github.com/damir/jobfinder/internal/validator"
 )
 
 type VacancyHandler struct {
@@ -18,6 +20,112 @@ func NewVacancyHandler(vacancyService service.VacancyService) *VacancyHandler {
 	return &VacancyHandler{
 		vacancyService: vacancyService,
 	}
+}
+
+func (h *VacancyHandler) Delete(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	vacancyID, err := httpx.ParseUintParam(r, "vacancyID")
+
+	if err != nil {
+		httpx.Error(
+			w,
+			http.StatusBadRequest,
+			err.Error(),
+		)
+		return
+	}
+
+	actor := service.Actor{
+		UserID: middleware.GetUserID(r.Context()),
+		Role:   middleware.GetRole(r.Context()),
+	}
+	err = h.vacancyService.Delete(r.Context(), vacancyID, actor)
+
+	if err != nil {
+		httpx.Error(
+			w,
+			http.StatusBadRequest,
+			err.Error(),
+		)
+		return
+	}
+
+	httpx.JSON(
+		w,
+		http.StatusNoContent,
+		"",
+	)
+}
+
+func (h *VacancyHandler) GetByID(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	vacancyID, err := httpx.ParseUintParam(r, "vacancyID")
+
+	if err != nil {
+		httpx.Error(
+			w,
+			http.StatusBadRequest,
+			err.Error(),
+		)
+		return
+	}
+
+	vacancy, err := h.vacancyService.GetByID(r.Context(), vacancyID)
+
+	if err != nil {
+		httpx.Error(
+			w,
+			http.StatusBadRequest,
+			err.Error(),
+		)
+		return
+	}
+
+	httpx.JSON(
+		w,
+		http.StatusOK,
+		mapper.VacancyToResponse(*vacancy),
+	)
+}
+
+func (h *VacancyHandler) GetList(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	vacancies, err := h.vacancyService.List(r.Context())
+
+	if err != nil {
+		httpx.Error(
+			w,
+			http.StatusInternalServerError,
+			"internal error",
+		)
+
+		return
+	}
+
+	response := make(
+		[]dto.VacancyResponse,
+		0,
+		len(vacancies),
+	)
+
+	for _, vacancy := range vacancies {
+		response = append(
+			response,
+			mapper.VacancyToResponse(vacancy),
+		)
+	}
+
+	httpx.JSON(
+		w,
+		http.StatusOK,
+		response,
+	)
 }
 
 func (h *VacancyHandler) Create(
@@ -38,6 +146,20 @@ func (h *VacancyHandler) Create(
 		return
 	}
 
+	err = validator.Validate.Struct(
+		req,
+	)
+
+	if err != nil {
+		httpx.Error(
+			w,
+			http.StatusBadRequest,
+			err.Error(),
+		)
+
+		return
+	}
+
 	userID := middleware.GetUserID(r.Context())
 
 	err = h.vacancyService.Create(
@@ -47,6 +169,16 @@ func (h *VacancyHandler) Create(
 	)
 
 	if err != nil {
+		if err == service.ErrInvalidSalaryRange {
+			httpx.Error(
+				w,
+				http.StatusBadRequest,
+				service.ErrInvalidSalaryRange.Error(),
+			)
+
+			return
+		}
+
 		httpx.Error(
 			w,
 			http.StatusInternalServerError,

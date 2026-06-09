@@ -4,12 +4,13 @@ import (
 	"errors"
 	"time"
 
+	"github.com/damir/jobfinder/internal/model"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type Claims struct {
 	UserID uint
-	Role   string
+	Role   model.Role
 
 	jwt.RegisteredClaims
 }
@@ -59,7 +60,7 @@ func (m *JWTManager) GenerateRefreshToken(
 
 func (m *JWTManager) GenerateToken(
 	userID uint,
-	role string,
+	role model.Role,
 ) (string, error) {
 	claims := Claims{
 		UserID: userID,

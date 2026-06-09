@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/damir/jobfinder/internal/dto"
+	"github.com/damir/jobfinder/internal/model"
 )
 
 type VacancyService interface {
@@ -12,4 +13,19 @@ type VacancyService interface {
 		req dto.CreateVacancyRequest,
 		userID uint,
 	) error
+
+	Delete(
+		ctx context.Context,
+		id uint,
+		actor Actor,
+	) error
+
+	GetByID(
+		ctx context.Context,
+		id uint,
+	) (*model.Vacancy, error)
+
+	List(
+		ctx context.Context,
+	) ([]model.Vacancy, error)
 }

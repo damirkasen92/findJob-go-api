@@ -3,11 +3,36 @@ package httpx
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type Response struct {
 	Data  any    `json:"data,omitempty"`
 	Error string `json:"error,omitempty"`
+}
+
+func ParseUintParam(
+	r *http.Request,
+	name string,
+) (uint, error) {
+	idStr := chi.URLParam(
+		r,
+		name,
+	)
+
+	id64, err := strconv.ParseUint(
+		idStr,
+		10,
+		64,
+	)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return uint(id64), nil
 }
 
 func JSON(
