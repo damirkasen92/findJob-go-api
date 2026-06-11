@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/damir/jobfinder/internal/model"
+	"github.com/damir/jobfinder/internal/query"
 )
 
 type VacancyRepository interface {
@@ -29,5 +30,6 @@ type VacancyRepository interface {
 
 	List(
 		ctx context.Context,
+		filter query.VacancyFilter,
 	) ([]model.Vacancy, error)
 }

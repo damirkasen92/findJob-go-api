@@ -5,6 +5,7 @@ import (
 
 	"github.com/damir/jobfinder/internal/dto"
 	"github.com/damir/jobfinder/internal/model"
+	"github.com/damir/jobfinder/internal/query"
 )
 
 type VacancyService interface {
@@ -27,5 +28,6 @@ type VacancyService interface {
 
 	List(
 		ctx context.Context,
+		filter query.VacancyFilter,
 	) ([]model.Vacancy, error)
 }

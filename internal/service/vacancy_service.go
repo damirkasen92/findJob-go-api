@@ -2,21 +2,17 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/damir/jobfinder/internal/dto"
 	"github.com/damir/jobfinder/internal/model"
+	"github.com/damir/jobfinder/internal/query"
 	"github.com/damir/jobfinder/internal/repository"
 )
-
-var ErrInvalidSalaryRange = errors.New("invalid salary range")
 
 type Actor struct {
 	UserID uint
 	Role   model.Role
 }
-
-var ErrForbidden = errors.New("forbidden")
 
 type vacancyService struct {
 	repo repository.VacancyRepository
@@ -34,7 +30,7 @@ func (s *vacancyService) Create(
 	userID uint,
 ) error {
 	if req.SalaryTo < req.SalaryFrom {
-		return ErrInvalidSalaryRange
+		return model.ErrInvalidSalaryRange
 	}
 
 	vacancy := model.Vacancy{
@@ -66,7 +62,7 @@ func (s *vacancyService) Delete(
 		return s.repo.Delete(ctx, id)
 	}
 
-	return ErrForbidden
+	return model.ErrForbidden
 }
 
 func (s *vacancyService) GetByID(
@@ -76,6 +72,10 @@ func (s *vacancyService) GetByID(
 	vacancy, err := s.repo.GetByID(ctx, id)
 
 	if err != nil {
+		if err.Error() == "record not found" {
+			return nil, model.ErrNotFound
+		}
+
 		return nil, err
 	}
 
@@ -84,8 +84,9 @@ func (s *vacancyService) GetByID(
 
 func (s *vacancyService) List(
 	ctx context.Context,
+	filter query.VacancyFilter,
 ) ([]model.Vacancy, error) {
-	vacancies, err := s.repo.List(ctx)
+	vacancies, err := s.repo.List(ctx, filter)
 
 	if err != nil {
 		return nil, err

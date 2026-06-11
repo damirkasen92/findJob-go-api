@@ -39,7 +39,7 @@ func (s *userService) Register(
 	)
 
 	if err == nil && user != nil {
-		return ErrUserExists
+		return model.ErrUserExists
 	}
 
 	if err != nil &&
@@ -87,7 +87,7 @@ func (s *userService) Login(
 	)
 
 	if err != nil {
-		return "", "", ErrInvalidCredentials
+		return "", "", model.ErrInvalidCredentials
 	}
 
 	accessToken, err := s.jwt.GenerateToken(
@@ -129,7 +129,7 @@ func (s *userService) Refresh(
 	)
 
 	if err != nil {
-		return "", ErrInvalidCredentials
+		return "", model.ErrInvalidCredentials
 	}
 
 	user, err := s.repo.GetByID(

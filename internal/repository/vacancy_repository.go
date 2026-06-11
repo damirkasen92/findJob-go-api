@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/damir/jobfinder/internal/model"
+	"github.com/damir/jobfinder/internal/query"
 	"gorm.io/gorm"
 )
 
@@ -70,13 +71,59 @@ func (r *vacancyRepository) GetByID(
 
 func (r *vacancyRepository) List(
 	ctx context.Context,
+	filter query.VacancyFilter,
 ) ([]model.Vacancy, error) {
 	var vacancies []model.Vacancy
 
-	err := r.db.
+	db := r.db.
 		WithContext(ctx).
-		Find(&vacancies).
-		Error
+		Model(
+			&model.Vacancy{},
+		)
+
+	if filter.Search != "" {
+		db = db.Where(
+			"title ILIKE ?",
+			"%"+filter.Search+"%",
+		)
+	}
+
+	if filter.SalaryFrom > 0 {
+		db = db.Where(
+			"salary_from >= ?",
+			filter.SalaryFrom,
+		)
+	}
+
+	if filter.SalaryTo > 0 {
+		db = db.Where(
+			"salary_to <= ?",
+			filter.SalaryTo,
+		)
+	}
+
+	if filter.CreatedBy > 0 {
+		db = db.Where(
+			"created_by = ?",
+			filter.CreatedBy,
+		)
+	}
+
+	db = db.Order(
+		query.GetSortingForDB(filter.Sort),
+	)
+
+	offset :=
+		(filter.Page - 1) *
+			filter.Limit
+
+	db = db.
+		Limit(filter.Limit).
+		Offset(offset)
+
+	err := db.Find(
+		&vacancies,
+	).Error
 
 	return vacancies, err
 }

@@ -36,7 +36,7 @@ func (h *AuthHandler) Register(
 	).Decode(&req)
 
 	if err != nil {
-		httpx.Error(w, http.StatusBadRequest, err.Error())
+		httpx.HandleError(w, err)
 		return
 	}
 
@@ -46,15 +46,8 @@ func (h *AuthHandler) Register(
 		req,
 	)
 
-	// raw errors
 	if err != nil {
-
-		if err == service.ErrUserExists {
-			httpx.Error(w, http.StatusConflict, err.Error())
-			return
-		}
-
-		httpx.Error(w, http.StatusInternalServerError, err.Error())
+		httpx.HandleError(w, err)
 
 		return
 	}
@@ -78,10 +71,9 @@ func (h *AuthHandler) Login(
 	err := json.NewDecoder(r.Body).Decode(&req)
 
 	if err != nil {
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusBadRequest,
-			"invalid request",
+			err,
 		)
 
 		return
@@ -93,20 +85,9 @@ func (h *AuthHandler) Login(
 	)
 
 	if err != nil {
-		if err == service.ErrInvalidCredentials {
-			httpx.Error(
-				w,
-				http.StatusUnauthorized,
-				err.Error(),
-			)
-
-			return
-		}
-
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusInternalServerError,
-			"internal error",
+			err,
 		)
 
 		return
@@ -131,10 +112,9 @@ func (h *AuthHandler) Refresh(
 	err := json.NewDecoder(r.Body).Decode(&req)
 
 	if err != nil {
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusBadRequest,
-			"invalid request",
+			err,
 		)
 
 		return
@@ -143,10 +123,9 @@ func (h *AuthHandler) Refresh(
 	accessToken, err := h.userService.Refresh(r.Context(), req.RefreshToken)
 
 	if err != nil {
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusUnauthorized,
-			"invalid refresh token",
+			err,
 		)
 
 		return
@@ -177,10 +156,9 @@ func (h *AuthHandler) Me(
 	)
 
 	if err != nil {
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusNotFound,
-			"user not found",
+			err,
 		)
 
 		return

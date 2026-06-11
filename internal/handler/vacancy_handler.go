@@ -8,6 +8,7 @@ import (
 	"github.com/damir/jobfinder/internal/httpx"
 	"github.com/damir/jobfinder/internal/mapper"
 	"github.com/damir/jobfinder/internal/middleware"
+	"github.com/damir/jobfinder/internal/query"
 	"github.com/damir/jobfinder/internal/service"
 	"github.com/damir/jobfinder/internal/validator"
 )
@@ -29,10 +30,9 @@ func (h *VacancyHandler) Delete(
 	vacancyID, err := httpx.ParseUintParam(r, "vacancyID")
 
 	if err != nil {
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusBadRequest,
-			err.Error(),
+			err,
 		)
 		return
 	}
@@ -44,10 +44,9 @@ func (h *VacancyHandler) Delete(
 	err = h.vacancyService.Delete(r.Context(), vacancyID, actor)
 
 	if err != nil {
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusBadRequest,
-			err.Error(),
+			err,
 		)
 		return
 	}
@@ -66,10 +65,9 @@ func (h *VacancyHandler) GetByID(
 	vacancyID, err := httpx.ParseUintParam(r, "vacancyID")
 
 	if err != nil {
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusBadRequest,
-			err.Error(),
+			err,
 		)
 		return
 	}
@@ -77,10 +75,9 @@ func (h *VacancyHandler) GetByID(
 	vacancy, err := h.vacancyService.GetByID(r.Context(), vacancyID)
 
 	if err != nil {
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusBadRequest,
-			err.Error(),
+			err,
 		)
 		return
 	}
@@ -96,13 +93,13 @@ func (h *VacancyHandler) GetList(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	vacancies, err := h.vacancyService.List(r.Context())
+	filter := query.ParseVacancyFilter(r)
+	vacancies, err := h.vacancyService.List(r.Context(), filter)
 
 	if err != nil {
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusInternalServerError,
-			"internal error",
+			err,
 		)
 
 		return
@@ -137,24 +134,22 @@ func (h *VacancyHandler) Create(
 	err := json.NewDecoder(r.Body).Decode(&req)
 
 	if err != nil {
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusBadRequest,
-			"invalid request",
+			err,
 		)
 
 		return
 	}
 
-	err = validator.Validate.Struct(
+	err = validator.ValidateStruct(
 		req,
 	)
 
 	if err != nil {
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusBadRequest,
-			err.Error(),
+			err,
 		)
 
 		return
@@ -169,20 +164,9 @@ func (h *VacancyHandler) Create(
 	)
 
 	if err != nil {
-		if err == service.ErrInvalidSalaryRange {
-			httpx.Error(
-				w,
-				http.StatusBadRequest,
-				service.ErrInvalidSalaryRange.Error(),
-			)
-
-			return
-		}
-
-		httpx.Error(
+		httpx.HandleError(
 			w,
-			http.StatusInternalServerError,
-			"internal error",
+			err,
 		)
 
 		return
