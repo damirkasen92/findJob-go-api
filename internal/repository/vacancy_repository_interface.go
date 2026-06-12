@@ -31,5 +31,5 @@ type VacancyRepository interface {
 	List(
 		ctx context.Context,
 		filter query.VacancyFilter,
-	) ([]model.Vacancy, error)
+	) ([]model.Vacancy, int64, error)
 }

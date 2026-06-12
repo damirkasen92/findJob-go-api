@@ -8,9 +8,23 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+type Meta struct {
+	Page  int `json:"page"`
+	Limit int `json:"limit"`
+
+	Total int64 `json:"total"`
+	Pages int   `json:"pages"`
+}
+
 type Response struct {
 	Data  any    `json:"data,omitempty"`
 	Error string `json:"error,omitempty"`
+}
+
+type PaginatedResponse[T any] struct {
+	Data []T `json:"data"`
+
+	Meta Meta `json:"meta"`
 }
 
 func ParseUintParam(

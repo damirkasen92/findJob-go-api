@@ -85,12 +85,12 @@ func (s *vacancyService) GetByID(
 func (s *vacancyService) List(
 	ctx context.Context,
 	filter query.VacancyFilter,
-) ([]model.Vacancy, error) {
-	vacancies, err := s.repo.List(ctx, filter)
+) ([]model.Vacancy, int64, error) {
+	vacancies, total, err := s.repo.List(ctx, filter)
 
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return vacancies, nil
+	return vacancies, total, nil
 }

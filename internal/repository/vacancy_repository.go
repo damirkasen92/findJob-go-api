@@ -72,8 +72,9 @@ func (r *vacancyRepository) GetByID(
 func (r *vacancyRepository) List(
 	ctx context.Context,
 	filter query.VacancyFilter,
-) ([]model.Vacancy, error) {
+) ([]model.Vacancy, int64, error) {
 	var vacancies []model.Vacancy
+	var total int64
 
 	db := r.db.
 		WithContext(ctx).
@@ -113,6 +114,10 @@ func (r *vacancyRepository) List(
 		query.GetSortingForDB(filter.Sort),
 	)
 
+	err := db.Count(
+		&total,
+	).Error
+
 	offset :=
 		(filter.Page - 1) *
 			filter.Limit
@@ -121,9 +126,9 @@ func (r *vacancyRepository) List(
 		Limit(filter.Limit).
 		Offset(offset)
 
-	err := db.Find(
+	err = db.Find(
 		&vacancies,
 	).Error
 
-	return vacancies, err
+	return vacancies, total, err
 }

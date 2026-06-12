@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
 
 	"github.com/damir/jobfinder/internal/dto"
@@ -94,7 +95,7 @@ func (h *VacancyHandler) GetList(
 	r *http.Request,
 ) {
 	filter := query.ParseVacancyFilter(r)
-	vacancies, err := h.vacancyService.List(r.Context(), filter)
+	vacancies, total, err := h.vacancyService.List(r.Context(), filter)
 
 	if err != nil {
 		httpx.HandleError(
@@ -105,23 +106,43 @@ func (h *VacancyHandler) GetList(
 		return
 	}
 
-	response := make(
+	vacancyResponse := make(
 		[]dto.VacancyResponse,
 		0,
 		len(vacancies),
 	)
 
 	for _, vacancy := range vacancies {
-		response = append(
-			response,
+		vacancyResponse = append(
+			vacancyResponse,
 			mapper.VacancyToResponse(vacancy),
 		)
 	}
 
+	pages := int(
+		math.Ceil(
+			float64(total) /
+				float64(filter.Limit),
+		),
+	)
+
+	paginatedResponse :=
+		httpx.PaginatedResponse[dto.VacancyResponse]{
+			Data: vacancyResponse,
+
+			Meta: httpx.Meta{
+				Page:  filter.Page,
+				Limit: filter.Limit,
+
+				Total: total,
+				Pages: pages,
+			},
+		}
+
 	httpx.JSON(
 		w,
 		http.StatusOK,
-		response,
+		paginatedResponse,
 	)
 }
 
