@@ -5,6 +5,7 @@ import "github.com/damir/jobfinder/internal/handler"
 type Handlers struct {
 	Auth    *handler.AuthHandler
 	Vacancy *handler.VacancyHandler
+	Resume  *handler.ResumeHandler
 }
 
 func NewHandlers(
@@ -13,5 +14,6 @@ func NewHandlers(
 	return &Handlers{
 		Auth:    handler.NewAuthHandler(services.User),
 		Vacancy: handler.NewVacancyHandler(services.Vacancy),
+		Resume:  handler.NewResumeHandler(services.Resume),
 	}
 }

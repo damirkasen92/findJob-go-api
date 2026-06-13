@@ -29,6 +29,7 @@ func New() (*App, error) {
 		router.Handlers{
 			Auth:    handlers.Auth,
 			Vacancy: handlers.Vacancy,
+			Resume:  handlers.Resume,
 		},
 		jwtManager,
 	)

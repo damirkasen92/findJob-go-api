@@ -38,11 +38,8 @@ func (h *VacancyHandler) Delete(
 		return
 	}
 
-	actor := service.Actor{
-		UserID: middleware.GetUserID(r.Context()),
-		Role:   middleware.GetRole(r.Context()),
-	}
-	err = h.vacancyService.Delete(r.Context(), vacancyID, actor)
+	actor := dto.GetActor(r)
+	err = h.vacancyService.Delete(r.Context(), vacancyID, *actor)
 
 	if err != nil {
 		httpx.HandleError(

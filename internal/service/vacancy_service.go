@@ -9,11 +9,6 @@ import (
 	"github.com/damir/jobfinder/internal/repository"
 )
 
-type Actor struct {
-	UserID uint
-	Role   model.Role
-}
-
 type vacancyService struct {
 	repo repository.VacancyRepository
 }
@@ -50,7 +45,7 @@ func (s *vacancyService) Create(
 func (s *vacancyService) Delete(
 	ctx context.Context,
 	id uint,
-	actor Actor,
+	actor dto.Actor,
 ) error {
 	vacancy, err := s.repo.GetByID(ctx, id)
 

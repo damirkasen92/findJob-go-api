@@ -20,3 +20,15 @@ func VacancyToResponse(
 		CreatedBy: v.CreatedBy,
 	}
 }
+
+func ResumeToResponse(
+	v model.Resume,
+) dto.ResumeResponse {
+	return dto.ResumeResponse{
+		ID:     v.ID,
+		Title:  v.Title,
+		About:  v.About,
+		Skills: v.Skills,
+		UserID: v.UserID,
+	}
+}

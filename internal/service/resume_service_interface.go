@@ -5,29 +5,32 @@ import (
 
 	"github.com/damir/jobfinder/internal/dto"
 	"github.com/damir/jobfinder/internal/model"
-	"github.com/damir/jobfinder/internal/query"
 )
 
-type VacancyService interface {
+type ResumeService interface {
 	Create(
 		ctx context.Context,
-		req dto.CreateVacancyRequest,
-		userID uint,
+		req dto.CreateResumeRequest,
+		actor dto.Actor,
 	) error
 
 	Delete(
 		ctx context.Context,
-		id uint,
+		resumeID uint64,
 		actor dto.Actor,
 	) error
 
 	GetByID(
 		ctx context.Context,
-		id uint,
-	) (*model.Vacancy, error)
+		resumeID uint64,
+	) (*model.Resume, error)
 
-	List(
+	MyResumes(
 		ctx context.Context,
-		filter query.VacancyFilter,
-	) ([]model.Vacancy, int64, error)
+		actor dto.Actor,
+	) ([]model.Resume, error)
+
+	GetList(
+		ctx context.Context,
+	) ([]model.Resume, error)
 }

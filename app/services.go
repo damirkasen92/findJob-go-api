@@ -8,6 +8,7 @@ import (
 type Services struct {
 	User    service.UserService
 	Vacancy service.VacancyService
+	Resume  service.ResumeService
 }
 
 func NewServices(
@@ -21,6 +22,9 @@ func NewServices(
 		),
 		Vacancy: service.NewVacancyService(
 			repos.Vacancy,
+		),
+		Resume: service.NewResumeService(
+			repos.Resume,
 		),
 	}
 }

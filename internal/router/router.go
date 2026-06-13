@@ -13,6 +13,7 @@ import (
 type Handlers struct {
 	Auth    *handler.AuthHandler
 	Vacancy *handler.VacancyHandler
+	Resume  *handler.ResumeHandler
 }
 
 func NewRouter(handlers Handlers, jwtManager *auth.JWTManager) *chi.Mux {
@@ -85,6 +86,40 @@ func NewRouter(handlers Handlers, jwtManager *auth.JWTManager) *chi.Mux {
 			"/vacancies/{vacancyID}",
 			handlers.Vacancy.Delete,
 		)
+	})
+
+	r.Get("/resumes", handlers.Resume.GetList)
+	r.Get("/resumes/{resumeID}", handlers.Resume.GetByID)
+
+	r.Group(func(r chi.Router) {
+		r.Use(
+			authMiddleware.Handle,
+		)
+
+		r.Get("/my/resumes", handlers.Resume.MyResumes)
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(
+			authMiddleware.Handle,
+		)
+
+		r.Use(
+			middleware.RequireRole(
+				model.RoleUser,
+			),
+		)
+
+		r.Post(
+			"/resumes",
+			handlers.Resume.Create,
+		)
+
+		r.Delete(
+			"/resumes/{resumeID}",
+			handlers.Resume.Delete,
+		)
+
 	})
 
 	return r
