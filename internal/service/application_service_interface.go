@@ -7,30 +7,32 @@ import (
 	"github.com/damir/jobfinder/internal/model"
 )
 
-type ResumeService interface {
+type ApplicationService interface {
 	Create(
 		ctx context.Context,
-		req dto.CreateResumeRequest,
+		req dto.CreateApplicationRequest,
 		actor dto.Actor,
 	) error
 
-	Delete(
+	Exists(
 		ctx context.Context,
 		resumeID uint,
-		actor dto.Actor,
-	) error
+		vacancyID uint,
+	) (bool, error)
 
 	GetByID(
 		ctx context.Context,
-		resumeID uint,
-	) (*model.Resume, error)
-
-	MyResumes(
-		ctx context.Context,
+		applicationID uint,
 		actor dto.Actor,
-	) ([]model.Resume, error)
+	) (*model.Application, error)
 
-	GetList(
+	ListByVacancy(
 		ctx context.Context,
-	) ([]model.Resume, error)
+		vacancyID uint,
+	) ([]model.Application, error)
+
+	ListByUser(
+		ctx context.Context,
+		userID uint,
+	) ([]model.Application, error)
 }

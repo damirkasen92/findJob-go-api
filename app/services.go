@@ -6,9 +6,10 @@ import (
 )
 
 type Services struct {
-	User    service.UserService
-	Vacancy service.VacancyService
-	Resume  service.ResumeService
+	User        service.UserService
+	Vacancy     service.VacancyService
+	Resume      service.ResumeService
+	Application service.ApplicationService
 }
 
 func NewServices(
@@ -24,6 +25,11 @@ func NewServices(
 			repos.Vacancy,
 		),
 		Resume: service.NewResumeService(
+			repos.Resume,
+		),
+		Application: service.NewApplicationService(
+			repos.Application,
+			repos.Vacancy,
 			repos.Resume,
 		),
 	}

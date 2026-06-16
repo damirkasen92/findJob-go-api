@@ -29,7 +29,7 @@ func (r *resumeRepository) Create(
 
 func (r *resumeRepository) Delete(
 	ctx context.Context,
-	resumeID uint64,
+	resumeID uint,
 ) error {
 	return r.db.
 		WithContext(ctx).
@@ -42,7 +42,7 @@ func (r *resumeRepository) Delete(
 
 func (r *resumeRepository) GetByID(
 	ctx context.Context,
-	resumeID uint64,
+	resumeID uint,
 ) (*model.Resume, error) {
 	var resume model.Resume
 
@@ -78,7 +78,7 @@ func (r *resumeRepository) GetList(
 
 func (r *resumeRepository) GetByUserID(
 	ctx context.Context,
-	userID uint64,
+	userID uint,
 ) ([]model.Resume, error) {
 	var resumes []model.Resume
 

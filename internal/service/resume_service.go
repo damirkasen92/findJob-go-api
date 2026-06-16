@@ -38,7 +38,7 @@ func (s *resumeService) Create(
 
 func (s *resumeService) Delete(
 	ctx context.Context,
-	resumeID uint64,
+	resumeID uint,
 	actor dto.Actor,
 ) error {
 	resume, err := s.repo.GetByID(
@@ -62,7 +62,7 @@ func (s *resumeService) Delete(
 
 func (s *resumeService) GetByID(
 	ctx context.Context,
-	resumeID uint64,
+	resumeID uint,
 ) (*model.Resume, error) {
 	resume, err := s.repo.GetByID(
 		ctx,
@@ -100,7 +100,7 @@ func (s *resumeService) MyResumes(
 ) ([]model.Resume, error) {
 	resumes, err := s.repo.GetByUserID(
 		ctx,
-		uint64(actor.UserID),
+		actor.UserID,
 	)
 
 	if err != nil {

@@ -25,6 +25,7 @@ func NewDB(
 		&model.User{},
 		&model.Vacancy{},
 		&model.Resume{},
+		&model.Application{},
 	)
 
 	if err != nil {

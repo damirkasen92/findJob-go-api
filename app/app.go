@@ -27,9 +27,10 @@ func New() (*App, error) {
 
 	r := router.NewRouter(
 		router.Handlers{
-			Auth:    handlers.Auth,
-			Vacancy: handlers.Vacancy,
-			Resume:  handlers.Resume,
+			Auth:        handlers.Auth,
+			Vacancy:     handlers.Vacancy,
+			Resume:      handlers.Resume,
+			Application: handlers.Application,
 		},
 		jwtManager,
 	)

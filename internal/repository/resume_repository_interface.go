@@ -14,17 +14,17 @@ type ResumeRepository interface {
 
 	Delete(
 		ctx context.Context,
-		resumeID uint64,
+		resumeID uint,
 	) error
 
 	GetByID(
 		ctx context.Context,
-		resumeID uint64,
+		resumeID uint,
 	) (*model.Resume, error)
 
 	GetByUserID(
 		ctx context.Context,
-		userID uint64,
+		userID uint,
 	) ([]model.Resume, error)
 
 	GetList(

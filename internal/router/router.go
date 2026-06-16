@@ -11,9 +11,10 @@ import (
 )
 
 type Handlers struct {
-	Auth    *handler.AuthHandler
-	Vacancy *handler.VacancyHandler
-	Resume  *handler.ResumeHandler
+	Auth        *handler.AuthHandler
+	Vacancy     *handler.VacancyHandler
+	Resume      *handler.ResumeHandler
+	Application *handler.ApplicationHandler
 }
 
 func NewRouter(handlers Handlers, jwtManager *auth.JWTManager) *chi.Mux {
@@ -119,7 +120,17 @@ func NewRouter(handlers Handlers, jwtManager *auth.JWTManager) *chi.Mux {
 			"/resumes/{resumeID}",
 			handlers.Resume.Delete,
 		)
+	})
 
+	r.Group(func(r chi.Router) {
+		r.Use(
+			authMiddleware.Handle,
+		)
+
+		r.Post(
+			"/applications",
+			handlers.Application.Create,
+		)
 	})
 
 	return r

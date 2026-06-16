@@ -87,7 +87,7 @@ func (h *ResumeHandler) Delete(
 	}
 
 	actor := dto.GetActor(r)
-	err = h.resumeService.Delete(r.Context(), uint64(resumeID), *actor)
+	err = h.resumeService.Delete(r.Context(), resumeID, *actor)
 
 	if err != nil {
 		httpx.HandleError(
@@ -118,7 +118,7 @@ func (h *ResumeHandler) GetByID(
 		return
 	}
 
-	resume, err := h.resumeService.GetByID(r.Context(), uint64(resumeID))
+	resume, err := h.resumeService.GetByID(r.Context(), resumeID)
 
 	if err != nil {
 		httpx.HandleError(
