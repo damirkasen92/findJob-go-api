@@ -36,6 +36,7 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 				httpx.Error(
 					w,
 					http.StatusUnauthorized,
+					"ERROR_MISSING_TOKEN",
 					"missing token",
 				)
 
@@ -57,6 +58,7 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 				httpx.Error(
 					w,
 					http.StatusUnauthorized,
+					"ERROR_INVALID_TOKEN",
 					"invalid token",
 				)
 

@@ -27,6 +27,11 @@ type PaginatedResponse[T any] struct {
 	Meta Meta `json:"meta"`
 }
 
+type APIError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
 func ParseUintParam(
 	r *http.Request,
 	name string,
@@ -72,6 +77,7 @@ func JSON(
 func Error(
 	w http.ResponseWriter,
 	status int,
+	code string,
 	message string,
 ) {
 
@@ -83,8 +89,9 @@ func Error(
 	w.WriteHeader(status)
 
 	_ = json.NewEncoder(w).Encode(
-		Response{
-			Error: message,
+		APIError{
+			Code:    code,
+			Message: message,
 		},
 	)
 }

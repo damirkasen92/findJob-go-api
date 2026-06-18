@@ -24,113 +24,63 @@ func NewRouter(handlers Handlers, jwtManager *auth.JWTManager) *chi.Mux {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recover)
 
-	authMiddleware :=
-		middleware.NewAuthMiddleware(
-			jwtManager,
-		)
+	authMiddleware := middleware.NewAuthMiddleware(jwtManager)
 
-	// protected routes
-	r.Group(func(r chi.Router) {
-		r.Use(
-			authMiddleware.Handle,
-		)
+	r.Route("/api/v1", func(r chi.Router) {
+		// health
+		r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("ok"))
+		})
 
-		r.Get(
-			"/me",
-			handlers.Auth.Me,
-		)
-	})
+		// auth
+		r.Post("/auth/register", handlers.Auth.Register)
+		r.Post("/auth/login", handlers.Auth.Login)
+		r.Post("/auth/refresh", handlers.Auth.Refresh)
 
-	r.Get("/health", func(
-		w http.ResponseWriter,
-		r *http.Request,
-	) {
-		w.Write([]byte("ok"))
-	})
+		// protected
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddleware.Handle)
+			r.Get("/me", handlers.Auth.Me)
+		})
 
-	r.Post(
-		"/auth/register",
-		handlers.Auth.Register,
-	)
+		// vacancies
+		r.Get("/vacancies", handlers.Vacancy.GetList)
+		r.Get("/vacancies/{vacancyID}", handlers.Vacancy.GetByID)
 
-	r.Post(
-		"/auth/login",
-		handlers.Auth.Login,
-	)
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddleware.Handle)
+			r.Use(middleware.RequireRole(model.RoleAdmin, model.RoleCompany))
 
-	r.Post(
-		"/auth/refresh",
-		handlers.Auth.Refresh,
-	)
+			r.Post("/vacancies", handlers.Vacancy.Create)
+			r.Delete("/vacancies/{vacancyID}", handlers.Vacancy.Delete)
+			r.Get("/vacancies/{vacancyID}/applications", handlers.Application.ListByVacancy)
+		})
 
-	r.Get("/vacancies/{vacancyID}", handlers.Vacancy.GetByID)
-	r.Get("/vacancies", handlers.Vacancy.GetList)
+		// resumes
+		r.Get("/resumes", handlers.Resume.GetList)
+		r.Get("/resumes/{resumeID}", handlers.Resume.GetByID)
 
-	r.Group(func(r chi.Router) {
-		r.Use(
-			authMiddleware.Handle,
-		)
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddleware.Handle)
+			r.Get("/my/resumes", handlers.Resume.MyResumes)
+		})
 
-		r.Use(
-			middleware.RequireRole(
-				model.RoleAdmin,
-				model.RoleCompany,
-			),
-		)
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddleware.Handle)
+			r.Use(middleware.RequireRole(model.RoleUser))
 
-		r.Post(
-			"/vacancies",
-			handlers.Vacancy.Create,
-		)
+			r.Post("/resumes", handlers.Resume.Create)
+			r.Patch("/resumes", handlers.Resume.Update)
+			r.Delete("/resumes/{resumeID}", handlers.Resume.Delete)
+		})
 
-		r.Delete(
-			"/vacancies/{vacancyID}",
-			handlers.Vacancy.Delete,
-		)
-	})
-
-	r.Get("/resumes", handlers.Resume.GetList)
-	r.Get("/resumes/{resumeID}", handlers.Resume.GetByID)
-
-	r.Group(func(r chi.Router) {
-		r.Use(
-			authMiddleware.Handle,
-		)
-
-		r.Get("/my/resumes", handlers.Resume.MyResumes)
-	})
-
-	r.Group(func(r chi.Router) {
-		r.Use(
-			authMiddleware.Handle,
-		)
-
-		r.Use(
-			middleware.RequireRole(
-				model.RoleUser,
-			),
-		)
-
-		r.Post(
-			"/resumes",
-			handlers.Resume.Create,
-		)
-
-		r.Delete(
-			"/resumes/{resumeID}",
-			handlers.Resume.Delete,
-		)
-	})
-
-	r.Group(func(r chi.Router) {
-		r.Use(
-			authMiddleware.Handle,
-		)
-
-		r.Post(
-			"/applications",
-			handlers.Application.Create,
-		)
+		// applications
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddleware.Handle)
+			r.Get("/my/applications", handlers.Application.GetByUser)
+			r.Post("/applications", handlers.Application.Create)
+			r.Patch("/applications/{id}/status", handlers.Application.UpdateStatus)
+		})
 	})
 
 	return r

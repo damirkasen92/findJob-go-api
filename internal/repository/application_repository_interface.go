@@ -12,6 +12,11 @@ type ApplicationRepository interface {
 		application *model.Application,
 	) error
 
+	Update(
+		ctx context.Context,
+		application *model.Application,
+	) error
+
 	GetByID(
 		ctx context.Context,
 		applicationID uint,

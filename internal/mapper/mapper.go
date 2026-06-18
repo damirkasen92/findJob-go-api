@@ -1,6 +1,8 @@
 package mapper
 
 import (
+	"encoding/json"
+
 	"github.com/damir/jobfinder/internal/dto"
 	"github.com/damir/jobfinder/internal/model"
 )
@@ -21,14 +23,32 @@ func VacancyToResponse(
 	}
 }
 
-func ResumeToResponse(
-	v model.Resume,
-) dto.ResumeResponse {
+func UserToResponse(u model.User) dto.UserResponse {
+	return dto.UserResponse{
+		ID:    u.ID,
+		Email: u.Email,
+	}
+}
+
+func ResumeToResponse(r model.Resume) dto.ResumeResponse {
+	var skills []string
+	_ = json.Unmarshal(r.Skills, &skills)
+
 	return dto.ResumeResponse{
-		ID:     v.ID,
-		Title:  v.Title,
-		About:  v.About,
-		Skills: v.Skills,
-		UserID: v.UserID,
+		ID:     r.ID,
+		Title:  r.Title,
+		About:  r.About,
+		Skills: skills,
+		User:   UserToResponse(r.User),
+	}
+}
+
+func ApplicationToResponse(a model.Application) dto.ApplicationResponse {
+	return dto.ApplicationResponse{
+		ID:        a.ID,
+		VacancyID: a.VacancyID,
+		Status:    a.Status,
+		CreatedAt: a.CreatedAt,
+		Resume:    ResumeToResponse(a.Resume),
 	}
 }

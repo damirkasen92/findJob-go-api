@@ -14,6 +14,12 @@ type ResumeService interface {
 		actor dto.Actor,
 	) error
 
+	Update(
+		ctx context.Context,
+		dto dto.UpdateResumeRequest,
+		actor dto.Actor,
+	) error
+
 	Delete(
 		ctx context.Context,
 		resumeID uint,

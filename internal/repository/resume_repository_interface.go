@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/damir/jobfinder/internal/dto"
 	"github.com/damir/jobfinder/internal/model"
 )
 
@@ -10,6 +11,11 @@ type ResumeRepository interface {
 	Create(
 		ctx context.Context,
 		resume *model.Resume,
+	) error
+
+	Update(
+		ctx context.Context,
+		dto dto.UpdateResumeRequest,
 	) error
 
 	Delete(

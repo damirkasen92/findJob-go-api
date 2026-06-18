@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/damir/jobfinder/internal/dto"
 	"github.com/damir/jobfinder/internal/model"
 	"gorm.io/gorm"
 )
@@ -24,6 +25,22 @@ func (r *resumeRepository) Create(
 	return r.db.
 		WithContext(ctx).
 		Create(resume).
+		Error
+}
+
+func (r *resumeRepository) Update(
+	ctx context.Context,
+	dto dto.UpdateResumeRequest,
+) error {
+	return r.db.
+		WithContext(ctx).
+		Model(&model.Resume{}).
+		Where("id = ?", dto.Id).
+		Updates(map[string]interface{}{
+			"title":  dto.Title,
+			"about":  dto.About,
+			"skills": dto.Skills,
+		}).
 		Error
 }
 

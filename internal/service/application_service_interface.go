@@ -14,6 +14,12 @@ type ApplicationService interface {
 		actor dto.Actor,
 	) error
 
+	UpdateStatus(
+		ctx context.Context,
+		appId uint,
+		dto dto.UpdateApplicationStatusRequest,
+	) error
+
 	Exists(
 		ctx context.Context,
 		resumeID uint,
@@ -29,10 +35,11 @@ type ApplicationService interface {
 	ListByVacancy(
 		ctx context.Context,
 		vacancyID uint,
+		actor dto.Actor,
 	) ([]model.Application, error)
 
 	ListByUser(
 		ctx context.Context,
-		userID uint,
+		actor dto.Actor,
 	) ([]model.Application, error)
 }

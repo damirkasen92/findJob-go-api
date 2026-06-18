@@ -19,6 +19,7 @@ func HandleError(
 		Error(
 			w,
 			http.StatusBadRequest,
+			"ERROR_VALIDATION",
 			err.Error(),
 		)
 
@@ -29,6 +30,7 @@ func HandleError(
 		Error(
 			w,
 			http.StatusForbidden,
+			"ERROR_FORBIDDEN",
 			err.Error(),
 		)
 
@@ -39,6 +41,7 @@ func HandleError(
 		Error(
 			w,
 			http.StatusNotFound,
+			"ERROR_NOT_FOUND",
 			err.Error(),
 		)
 
@@ -49,6 +52,7 @@ func HandleError(
 		Error(
 			w,
 			http.StatusUnauthorized,
+			"ERROR_INVALID_CREDENTIALS",
 			err.Error(),
 		)
 
@@ -59,6 +63,7 @@ func HandleError(
 		Error(
 			w,
 			http.StatusBadRequest,
+			"ERROR_USER_ALREADY_EXISTS",
 			err.Error(),
 		)
 
@@ -69,6 +74,18 @@ func HandleError(
 		Error(
 			w,
 			http.StatusBadRequest,
+			"ERROR_INVALID_SALARY_RANGE",
+			err.Error(),
+		)
+
+	case errors.Is(
+		err,
+		model.ErrInvalidApplicationStatus,
+	):
+		Error(
+			w,
+			http.StatusBadRequest,
+			"ERROR_INVALID_APPLICATION_STATUS",
 			err.Error(),
 		)
 
@@ -76,6 +93,7 @@ func HandleError(
 		Error(
 			w,
 			http.StatusInternalServerError,
+			"ERROR_INTERNAL_ERROR",
 			"internal error",
 		)
 	}

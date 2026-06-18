@@ -2,10 +2,13 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/damir/jobfinder/internal/dto"
 	"github.com/damir/jobfinder/internal/model"
 	"github.com/damir/jobfinder/internal/repository"
+	"gorm.io/datatypes"
 )
 
 type resumeService struct {
@@ -23,10 +26,16 @@ func (s *resumeService) Create(
 	req dto.CreateResumeRequest,
 	actor dto.Actor,
 ) error {
+	skills := strings.Split(req.Skills, ",")
+
+	for i := range skills {
+		skills[i] = strings.TrimSpace(skills[i])
+	}
+
 	resume := model.Resume{
 		Title:  req.Title,
 		About:  req.About,
-		Skills: req.Skills,
+		Skills: datatypes.JSON([]byte(fmt.Sprintf(`["%s"]`, strings.Join(skills, `","`)))),
 		UserID: actor.UserID,
 	}
 
@@ -34,6 +43,27 @@ func (s *resumeService) Create(
 		ctx,
 		&resume,
 	)
+}
+
+func (s *resumeService) Update(
+	ctx context.Context,
+	dto dto.UpdateResumeRequest,
+	actor dto.Actor,
+) error {
+	resume, err := s.repo.GetByID(ctx, dto.Id)
+
+	if err != nil {
+		return err
+	}
+
+	if actor.Role == model.RoleAdmin || resume.UserID == actor.UserID {
+		return s.repo.Update(
+			ctx,
+			dto,
+		)
+	}
+
+	return model.ErrForbidden
 }
 
 func (s *resumeService) Delete(

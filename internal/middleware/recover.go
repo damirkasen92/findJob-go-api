@@ -25,7 +25,7 @@ func Recover(
 						err,
 					)
 
-					httpx.Error(w, http.StatusInternalServerError, "internal server error")
+					httpx.Error(w, http.StatusInternalServerError, "ERROR_INTERNAL_ERROR", "internal server error")
 				}
 			}()
 

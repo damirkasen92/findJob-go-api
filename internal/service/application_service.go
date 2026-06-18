@@ -66,6 +66,7 @@ func (s *applicationService) Create(
 			ResumeID:  req.ResumeID,
 			VacancyID: req.VacancyID,
 			UserID:    actor.UserID,
+			Status:    model.ApplicationPending,
 		}
 
 	err = s.repo.Create(ctx, &application)
@@ -115,7 +116,18 @@ func (s *applicationService) GetByID(
 func (s *applicationService) ListByVacancy(
 	ctx context.Context,
 	vacancyID uint,
+	actor dto.Actor,
 ) ([]model.Application, error) {
+	vacancy, err := s.vacancyRepo.GetByID(ctx, vacancyID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if actor.Role != model.RoleAdmin && vacancy.CreatedBy != actor.UserID {
+		return nil, model.ErrForbidden
+	}
+
 	applications, err := s.repo.ListByVacancy(
 		ctx,
 		vacancyID,
@@ -130,11 +142,11 @@ func (s *applicationService) ListByVacancy(
 
 func (s *applicationService) ListByUser(
 	ctx context.Context,
-	userID uint,
+	actor dto.Actor,
 ) ([]model.Application, error) {
 	applications, err := s.repo.ListByUser(
 		ctx,
-		userID,
+		actor.UserID,
 	)
 
 	if err != nil {
@@ -142,4 +154,28 @@ func (s *applicationService) ListByUser(
 	}
 
 	return applications, nil
+}
+
+func (s *applicationService) UpdateStatus(
+	ctx context.Context,
+	appId uint,
+	dto dto.UpdateApplicationStatusRequest,
+) error {
+	application, err := s.repo.GetByID(ctx, appId)
+
+	if err != nil {
+		return err
+	}
+
+	applicationStatus := model.ApplicationStatus(dto.Status)
+
+	if !applicationStatus.IsValid() {
+		return model.ErrInvalidApplicationStatus
+	}
+
+	application.Status = applicationStatus
+
+	err = s.repo.Update(ctx, application)
+
+	return err
 }

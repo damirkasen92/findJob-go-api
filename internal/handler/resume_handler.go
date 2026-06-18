@@ -72,6 +72,57 @@ func (h *ResumeHandler) Create(
 	)
 }
 
+func (h *ResumeHandler) Update(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	var req dto.UpdateResumeRequest
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+
+	if err != nil {
+		httpx.HandleError(
+			w,
+			err,
+		)
+
+		return
+	}
+
+	err = validator.ValidateStruct(
+		req,
+	)
+
+	if err != nil {
+		httpx.HandleError(
+			w,
+			err,
+		)
+
+		return
+	}
+
+	actor := dto.GetActor(r)
+	err = h.resumeService.Update(r.Context(), req, *actor)
+
+	if err != nil {
+		httpx.HandleError(
+			w,
+			err,
+		)
+
+		return
+	}
+
+	httpx.JSON(
+		w,
+		http.StatusOK,
+		map[string]string{
+			"message": "resume updated",
+		},
+	)
+}
+
 func (h *ResumeHandler) Delete(
 	w http.ResponseWriter,
 	r *http.Request,

@@ -37,6 +37,7 @@ func RequireRole(
 				httpx.Error(
 					w,
 					http.StatusForbidden,
+					"ERROR_ACCESS_DENIED",
 					"access denied",
 				)
 			},

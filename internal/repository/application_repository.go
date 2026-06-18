@@ -27,6 +27,16 @@ func (r *applicationRepository) Create(
 		Error
 }
 
+func (r *applicationRepository) Update(
+	ctx context.Context,
+	application *model.Application,
+) error {
+	return r.db.
+		WithContext(ctx).
+		Save(application).
+		Error
+}
+
 func (r *applicationRepository) GetByID(
 	ctx context.Context,
 	applicationID uint,
@@ -71,6 +81,8 @@ func (r *applicationRepository) ListByUser(
 	db := r.db.
 		WithContext(ctx).
 		Model(&model.Application{}).
+		Preload("Resume").
+		Preload("Resume.User").
 		Where("user_id", userID)
 
 	err := db.Find(&applications).
@@ -88,7 +100,9 @@ func (r *applicationRepository) ListByVacancy(
 	db := r.db.
 		WithContext(ctx).
 		Model(&model.Application{}).
-		Where("vacancy_id", vacancyID)
+		Where("vacancy_id", vacancyID).
+		Preload("Resume").
+		Preload("Resume.User")
 
 	err := db.Find(&applications).
 		Error

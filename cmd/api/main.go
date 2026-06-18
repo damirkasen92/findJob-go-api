@@ -14,7 +14,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = http.ListenAndServe(":9000", app.Router)
+	err = http.ListenAndServe("0.0.0.0:9000", app.Router)
 
 	if err != nil {
 		log.Fatal(err)

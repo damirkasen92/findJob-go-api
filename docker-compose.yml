@@ -1,4 +1,15 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ".:/app"
+    command: go run cmd/api/main.go
+    ports:
+      - "9000:9000"
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres:17
