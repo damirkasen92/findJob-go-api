@@ -26,27 +26,18 @@ func (h *ApplicationHandler) Create(
 ) {
 	var req dto.CreateApplicationRequest
 
-	err := json.NewDecoder(r.Body).Decode(&req)
-
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		panic(err)
 	}
 
 	actor := dto.GetActor(r)
-	err = h.applicationService.Create(r.Context(), req, *actor)
 
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	if err := h.applicationService.Create(
+		r.Context(),
+		req,
+		*actor,
+	); err != nil {
+		panic(err)
 	}
 
 	httpx.JSON(
@@ -65,24 +56,15 @@ func (h *ApplicationHandler) ListByVacancy(
 	vacancyID, err := httpx.ParseUintParam(r, "vacancyID")
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+		panic(err)
 	}
 
 	actor := dto.GetActor(r)
+
 	applications, err := h.applicationService.ListByVacancy(r.Context(), vacancyID, *actor)
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+		panic(err)
 	}
 
 	responses := make([]dto.ApplicationResponse, 0, len(applications))
@@ -106,34 +88,15 @@ func (h *ApplicationHandler) UpdateStatus(
 	appId, err := httpx.ParseUintParam(r, "id")
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+		panic(err)
 	}
 
-	err = json.NewDecoder(r.Body).Decode(&dto)
-
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	if err = json.NewDecoder(r.Body).Decode(&dto); err != nil {
+		panic(err)
 	}
 
-	err = h.applicationService.UpdateStatus(r.Context(), appId, dto)
-
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	if err = h.applicationService.UpdateStatus(r.Context(), appId, dto); err != nil {
+		panic(err)
 	}
 
 	httpx.JSON(
@@ -153,12 +116,7 @@ func (h *ApplicationHandler) GetByUser(
 	applications, err := h.applicationService.ListByUser(r.Context(), *actor)
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+		panic(err)
 	}
 
 	responses := make([]dto.ApplicationResponse, 0, len(applications))

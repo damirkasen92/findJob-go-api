@@ -1,10 +1,11 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/damir/jobfinder/internal/httpx"
+	"github.com/damir/jobfinder/pkg/logger"
+	"go.uber.org/zap"
 )
 
 func Recover(
@@ -19,10 +20,9 @@ func Recover(
 						r.Context(),
 					)
 
-					log.Printf(
-						"request_id=%s panic=%v",
-						requestID,
-						err,
+					logger.Info("recover failed",
+						zap.String("request_id", requestID),
+						zap.Any("panic", err),
 					)
 
 					httpx.Error(w, http.StatusInternalServerError, "ERROR_INTERNAL_ERROR", "internal server error")

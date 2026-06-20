@@ -8,6 +8,7 @@ import (
 	"github.com/damir/jobfinder/internal/middleware"
 	"github.com/damir/jobfinder/internal/model"
 	"github.com/go-chi/chi/v5"
+	"go.uber.org/zap"
 )
 
 type Handlers struct {
@@ -17,14 +18,15 @@ type Handlers struct {
 	Application *handler.ApplicationHandler
 }
 
-func NewRouter(handlers Handlers, jwtManager *auth.JWTManager) *chi.Mux {
+func NewRouter(handlers Handlers, jwtManager *auth.JWTManager, logger *zap.Logger) *chi.Mux {
 	r := chi.NewRouter()
+	authMiddleware := middleware.NewAuthMiddleware(jwtManager)
+	loggerMiddleware := middleware.Logger(logger)
 
 	r.Use(middleware.RequestID)
-	r.Use(middleware.Logger)
+	r.Use(loggerMiddleware)
 	r.Use(middleware.Recover)
-
-	authMiddleware := middleware.NewAuthMiddleware(jwtManager)
+	r.Use(middleware.ErrorMiddleware)
 
 	r.Route("/api/v1", func(r chi.Router) {
 		// health

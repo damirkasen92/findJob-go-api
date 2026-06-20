@@ -65,6 +65,7 @@ func (r *resumeRepository) GetByID(
 
 	err := r.db.
 		WithContext(ctx).
+		Preload("User").
 		First(&resume, resumeID).
 		Error
 
@@ -83,6 +84,7 @@ func (r *resumeRepository) GetList(
 	err := r.db.
 		WithContext(ctx).
 		Model(&model.Resume{}).
+		Preload("User").
 		Find(&resumes).
 		Error
 
@@ -104,7 +106,8 @@ func (r *resumeRepository) GetByUserID(
 		Model(
 			&model.Resume{},
 		).
-		Where("user_id", userID)
+		Where("user_id", userID).
+		Preload("User")
 
 	err := db.Find(
 		&resumes,

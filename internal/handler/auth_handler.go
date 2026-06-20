@@ -31,25 +31,18 @@ func (h *AuthHandler) Register(
 	var req dto.RegisterRequest
 
 	// recieve our data
-	err := json.NewDecoder(
+	if err := json.NewDecoder(
 		r.Body,
-	).Decode(&req)
-
-	if err != nil {
-		httpx.HandleError(w, err)
-		return
+	).Decode(&req); err != nil {
+		panic(err)
 	}
 
 	// do registering business logic
-	err = h.userService.Register(
+	if err := h.userService.Register(
 		r.Context(),
 		req,
-	)
-
-	if err != nil {
-		httpx.HandleError(w, err)
-
-		return
+	); err != nil {
+		panic(err)
 	}
 
 	// send a response with status code 201
@@ -68,15 +61,8 @@ func (h *AuthHandler) Login(
 ) {
 	var req dto.LoginRequest
 
-	err := json.NewDecoder(r.Body).Decode(&req)
-
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		panic(err)
 	}
 
 	accessToken, refreshToken, err := h.userService.Login(
@@ -85,12 +71,7 @@ func (h *AuthHandler) Login(
 	)
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+		panic(err)
 	}
 
 	httpx.JSON(
@@ -109,26 +90,14 @@ func (h *AuthHandler) Refresh(
 ) {
 	var req dto.RefreshRequest
 
-	err := json.NewDecoder(r.Body).Decode(&req)
-
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		panic(err)
 	}
 
 	accessToken, err := h.userService.Refresh(r.Context(), req.RefreshToken)
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+		panic(err)
 	}
 
 	httpx.JSON(
@@ -156,12 +125,7 @@ func (h *AuthHandler) Me(
 	)
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+		panic(err)
 	}
 
 	// send a simple json

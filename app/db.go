@@ -1,8 +1,6 @@
 package app
 
 import (
-	"log"
-
 	"github.com/damir/jobfinder/internal/config"
 	"github.com/damir/jobfinder/internal/model"
 	"gorm.io/driver/postgres"
@@ -31,8 +29,6 @@ func NewDB(
 	if err != nil {
 		return nil, err
 	}
-
-	log.Println("database connected")
 
 	return db, nil
 }

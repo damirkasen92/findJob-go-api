@@ -27,40 +27,20 @@ func (h *ResumeHandler) Create(
 ) {
 	var req dto.CreateResumeRequest
 
-	err := json.NewDecoder(r.Body).Decode(&req)
-
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		panic(err)
 	}
 
-	err = validator.ValidateStruct(
+	if err := validator.ValidateStruct(
 		req,
-	)
-
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	); err != nil {
+		panic(err)
 	}
 
 	actor := dto.GetActor(r)
-	err = h.resumeService.Create(r.Context(), req, *actor)
 
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	if err := h.resumeService.Create(r.Context(), req, *actor); err != nil {
+		panic(err)
 	}
 
 	httpx.JSON(
@@ -78,40 +58,20 @@ func (h *ResumeHandler) Update(
 ) {
 	var req dto.UpdateResumeRequest
 
-	err := json.NewDecoder(r.Body).Decode(&req)
-
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		panic(err)
 	}
 
-	err = validator.ValidateStruct(
+	if err := validator.ValidateStruct(
 		req,
-	)
-
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	); err != nil {
+		panic(err)
 	}
 
 	actor := dto.GetActor(r)
-	err = h.resumeService.Update(r.Context(), req, *actor)
 
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	if err := h.resumeService.Update(r.Context(), req, *actor); err != nil {
+		panic(err)
 	}
 
 	httpx.JSON(
@@ -130,22 +90,13 @@ func (h *ResumeHandler) Delete(
 	resumeID, err := httpx.ParseUintParam(r, "resumeID")
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-		return
+		panic(err)
 	}
 
 	actor := dto.GetActor(r)
-	err = h.resumeService.Delete(r.Context(), resumeID, *actor)
 
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-		return
+	if err = h.resumeService.Delete(r.Context(), resumeID, *actor); err != nil {
+		panic(err)
 	}
 
 	httpx.JSON(
@@ -162,21 +113,13 @@ func (h *ResumeHandler) GetByID(
 	resumeID, err := httpx.ParseUintParam(r, "resumeID")
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-		return
+		panic(err)
 	}
 
 	resume, err := h.resumeService.GetByID(r.Context(), resumeID)
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-		return
+		panic(err)
 	}
 
 	httpx.JSON(
@@ -193,12 +136,7 @@ func (h *ResumeHandler) GetList(
 	resumes, err := h.resumeService.GetList(r.Context())
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+		panic(err)
 	}
 
 	response := make(
@@ -233,12 +171,7 @@ func (h *ResumeHandler) MyResumes(
 	)
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+		panic(err)
 	}
 
 	response := make(

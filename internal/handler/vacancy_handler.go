@@ -31,22 +31,13 @@ func (h *VacancyHandler) Delete(
 	vacancyID, err := httpx.ParseUintParam(r, "vacancyID")
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-		return
+		panic(err)
 	}
 
 	actor := dto.GetActor(r)
-	err = h.vacancyService.Delete(r.Context(), vacancyID, *actor)
 
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-		return
+	if err = h.vacancyService.Delete(r.Context(), vacancyID, *actor); err != nil {
+		panic(err)
 	}
 
 	httpx.JSON(
@@ -63,21 +54,13 @@ func (h *VacancyHandler) GetByID(
 	vacancyID, err := httpx.ParseUintParam(r, "vacancyID")
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-		return
+		panic(err)
 	}
 
 	vacancy, err := h.vacancyService.GetByID(r.Context(), vacancyID)
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-		return
+		panic(err)
 	}
 
 	httpx.JSON(
@@ -95,12 +78,7 @@ func (h *VacancyHandler) GetList(
 	vacancies, total, err := h.vacancyService.List(r.Context(), filter)
 
 	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+		panic(err)
 	}
 
 	vacancyResponse := make(
@@ -149,45 +127,24 @@ func (h *VacancyHandler) Create(
 ) {
 	var req dto.CreateVacancyRequest
 
-	err := json.NewDecoder(r.Body).Decode(&req)
-
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		panic(err)
 	}
 
-	err = validator.ValidateStruct(
+	if err := validator.ValidateStruct(
 		req,
-	)
-
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	); err != nil {
+		panic(err)
 	}
 
 	userID := middleware.GetUserID(r.Context())
 
-	err = h.vacancyService.Create(
+	if err := h.vacancyService.Create(
 		r.Context(),
 		req,
 		userID,
-	)
-
-	if err != nil {
-		httpx.HandleError(
-			w,
-			err,
-		)
-
-		return
+	); err != nil {
+		panic(err)
 	}
 
 	httpx.JSON(
